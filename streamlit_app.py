@@ -4,8 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("Agg")
-import joblib
 from scipy.stats import genpareto
+import xgboost as xgb
+import lightgbm as lgb
 
 # ── Configuration page ────────────────────────────────────────────────────────
 st.set_page_config(
@@ -18,8 +19,27 @@ st.set_page_config(
 # ── Chargement des donnees ────────────────────────────────────────────────────
 @st.cache_resource
 def load_models():
-    xgb_model = joblib.load("xgb_frequence.pkl")
-    lgb_model  = joblib.load("lgb_severite.pkl")
+    X_train      = pd.read_csv("X_train.csv")
+    y_freq_train = pd.read_csv("y_freq_train.csv").squeeze()
+    y_sev_train  = pd.read_csv("y_sev_train.csv").squeeze()
+
+    ratio = (y_freq_train == 0).sum() / (y_freq_train == 1).sum()
+
+    xgb_model = xgb.XGBClassifier(
+        n_estimators=100, max_depth=3, learning_rate=0.05,
+        scale_pos_weight=ratio, objective="binary:logistic",
+        random_state=42, n_jobs=-1
+    )
+    xgb_model.fit(X_train, y_freq_train, verbose=False)
+
+    mask = y_freq_train == 1
+    lgb_model = lgb.LGBMRegressor(
+        n_estimators=100, max_depth=3, learning_rate=0.05,
+        objective="huber", alpha=0.9, random_state=42,
+        n_jobs=-1, verbose=-1
+    )
+    lgb_model.fit(X_train[mask], y_sev_train)
+
     return xgb_model, lgb_model
 
 @st.cache_data
@@ -44,7 +64,7 @@ def run_monte_carlo(priorite, portee, n_simul, xi_fit, sigma_fit, lambda_annuel)
         couts_annuels[i] = charges.sum()
     return couts_annuels
 
-xgb_model, lgb_model               = load_models()
+xgb_model, lgb_model = load_models()
 contrats, resultats_mc, test_df, X_test, shap_xgb = load_data()
 
 xi_fit        = float(resultats_mc.loc["xi_fit",        "valeur"])
