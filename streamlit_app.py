@@ -434,4 +434,4 @@ with tab4:
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.markdown("*XS-Predict — M2 Assurance CNAM · WTW · CNP Reassurance*")
+st.markdown("*XS-Predict*")
