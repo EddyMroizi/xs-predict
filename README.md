@@ -173,4 +173,4 @@ Lancer le dashboard :
 
 **Eddy Mroizi** — Chargé d'études actuarielles
 
-[LinkedIn](https://linkedin.com/in/eddy-mroizi) · [GitHub](https://github.com/EddyMroizi)
+[LinkedIn](https://www.linkedin.com/in/eddy-mroizi-964653265/) · [GitHub](https://github.com/EddyMroizi)
